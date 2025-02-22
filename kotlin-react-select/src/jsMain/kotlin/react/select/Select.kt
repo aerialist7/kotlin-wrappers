@@ -181,7 +181,7 @@ external interface SelectProps<Option : Any, Group : GroupBase<Option>> : PropsW
     var name: String?
 
     /** Text to display when there are no options */
-    var noOptionsMessage: ((HasInputValue) -> ReactNode)?
+    var noOptionsMessage: ((HasInputValue) -> ReactNode?)?
 
     /** Handle blur events on the control */
     var onBlur: FocusEventHandler<HTMLInputElement>?
