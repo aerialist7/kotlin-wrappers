@@ -9,7 +9,6 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.js-plain-objects")
     id("wrappersbuild.tools-conventions")
-    id("wrappersbuild.kotlin-test-conventions")
 }
 
 val COMMON_FREE_COMPILER_ARGS = listOf(
@@ -28,6 +27,7 @@ val COMMON_OPT_INS = listOf(
 
 val COMMON_INTERNAL_OPT_INS = listOf(
     "js.internal.InternalApi",
+    "kotlin.js.ExperimentalWasmJsInterop",
 )
 
 val JS_FREE_COMPILER_ARGS = listOf(
@@ -59,13 +59,8 @@ kotlin {
         }
     }
 
-    sourceSets.commonMain {
+    sourceSets.webMain {
         kotlin.srcDir(projectDir.resolve("src/webMain/generated"))
-        kotlin.srcDir(projectDir.resolve("src/webMain/kotlin"))
-    }
-
-    sourceSets.commonTest {
-        kotlin.srcDir(projectDir.resolve("src/webTest/kotlin"))
     }
 
     sourceSets.jsMain {

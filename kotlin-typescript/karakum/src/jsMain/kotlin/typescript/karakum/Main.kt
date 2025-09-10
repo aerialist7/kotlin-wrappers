@@ -12,6 +12,8 @@ import js.objects.recordOf
 import node.path.path
 import node.process.process
 import node.url.fileURLToPath
+import typescript.karakum.nameResolvers.*
+import typescript.karakum.plugins.*
 
 suspend fun main() {
     val typescriptPackage = import.meta.resolve("typescript/package.json")
@@ -21,18 +23,6 @@ suspend fun main() {
     val outputPath = process.argv[2]
 
     val cwd = process.cwd()
-
-    val jsPlugins = loadExtensions(
-        "Plugin",
-        arrayOf("kotlin/plugins/*.js"),
-        cwd
-    ) { plugin ->
-        if (plugin is Function<*>) {
-            createPlugin(plugin.unsafeCast<SimplePlugin>())
-        } else {
-            plugin.unsafeCast<Plugin>()
-        }
-    }
 
     val jsInjections = loadExtensions(
         "Injection",
@@ -52,12 +42,6 @@ suspend fun main() {
         cwd,
     )
 
-    val jsNameResolvers = loadExtensions<NameResolver>(
-        "Name Resolver",
-        arrayOf("kotlin/nameResolvers/*.js"),
-        cwd,
-    )
-
     val jsInheritanceModifiers = loadExtensions<InheritanceModifier>(
         "Inheritance Modifier",
         arrayOf("kotlin/inheritanceModifiers/*.js"),
@@ -72,12 +56,39 @@ suspend fun main() {
 
     generate {
         plugins = manyOf(
-            values = jsPlugins + arrayOf(
-            )
+            ContractFunctionApiPlugin(),
+
+            convertArrayInheritance,
+            convertCollections,
+            convertConflictingOverloads,
+            convertIncompatibleParameterName,
+            convertJSDocAugmentsTagClassReference,
+            convertKindEnums,
+            convertSkippedGenerics,
+            convertTypealiasParameterBounds,
+            convertUtilityTypes,
+            convertWithMetadata,
         )
         injections = manyOf(values = jsInjections + arrayOf())
         annotations = manyOf(values = jsAnnotations + arrayOf())
-        nameResolvers = manyOf(values = jsNameResolvers + arrayOf())
+        nameResolvers = manyOf(
+            ::resolveChangePropertyTypesPropertyName,
+            ::resolveCustomTransformersAfterDeclarationsItemTypeArgumentName,
+            ::resolveFunctionReturnTypeItemName,
+            ::resolveFunctionReturnTypePredicateName,
+            ::resolveInterfaceMethodParameterItemName,
+            ::resolveInterfaceMethodReturnTypeNullableUnionName,
+            ::resolveInterfaceMethodTypeParameterConstraintName,
+            ::resolveInterfacePropertyConflictingName,
+            ::resolveInterfacePropertyIntersectionPropertyName,
+            ::resolveInterfacePropertyTypeReferenceItemName,
+            ::resolveInterfacePropertyArrayTypeItemName,
+            ::resolveInterfacePropertyNullableUnionName,
+            ::resolveInterfacePropertyPropertyName,
+            ::resolveTypeAliasIntersectionPropertyName,
+            ::resolveTypeAliasNullableUnionName,
+            ::resolveTypeAliasNullableUnionPropertyName,
+        )
         inheritanceModifiers = manyOf(values = jsInheritanceModifiers + arrayOf())
         varianceModifiers = manyOf(values = jsVarianceModifiers + arrayOf())
 
